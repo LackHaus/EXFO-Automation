@@ -237,6 +237,104 @@ class OSA:
         self.platform_obj.sendall(("LINS"+str(self.lins)+":MMEM:STOR:MEAS:WDM "+str(filepath)+"\n").encode())
         print("Trace saved in: "+str(filepath))
 
+
+class T100:
+    def __init__(self, GPIB0):
+        rm = pyvisa.ResourceManager()
+        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        print("Connexion established with: "+ self.platform.query("*IDN?"))
+        print("Referencing...")
+        self.platform.write("AUTO_CAL")
+        time.sleep(30)
+
+    def outputOn(self):
+        self.platform.write("ENABLE")
+
+    def outputOff(self):
+        self.platform.write("DISABLE")
+
+    def setdBm(self):
+        self.platform.write("DBM")
+        
+    def setmW(self):
+        self.platform.write("MW")
+
+    def setWL(self, wl):
+        self.platform.write("L="+str(wl))
+        time.sleep(5)
+
+    def getWL(self):
+        wl = self.platform.query("L?")
+        self.wl = float(wl)
+        return wl
+
+    def setP(self, p):
+        self.platform.write("P="+str(p))
+        time.sleep(5)
+
+    def getP(self):
+        p = self.platform.query("P?")
+        self.p = float(p)
+        return p
+
+class Keysight86122:
+    def __init__(self, GPIB0):
+        rm = pyvisa.ResourceManager()
+        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        print("Connexion established with: "+ self.platform.query("*IDN?"))
+        time.sleep(5)
+
+    def setPeakThreshold(self, peak_t):
+        self.platform.write(":CALCulate2:PEXCursion "+str(peak_t))
+
+    def getWL(self):
+        wls = self.platform.query(":CALCulate2:DATA? WAV")
+        return wls
+
+class Yokogawa:
+    def __init__(self, GPIB0):
+        rm = pyvisa.ResourceManager()
+        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        print("Connexion established with: "+ self.platform.query("*IDN?"))
+        self.platform.write(":SENSe:CORRection:RVELocity:MEDium VAC")
+        self.platform.write(":SENSe:SWEep:SPEed 1x")
+        self.platform.write(":UNIT:X WAVelength")
+        self.platform.write(":DISPlay:TRACe:Y1:UNIT DBM")
+        self.platform.write(":SENSe:SETT:FCON ANGL")
+        self.platform.write(":TRIG:PHOLd:HTIMe 0 MS")
+        self.platform.write(":INITiate:SMODe 1")
+        self.platform.write(":CALibration:ZERO off")
+        self.platform.write(":CALibration:ZERO once")
+        self.platform.write(":SENSe:SENSe NORM")
+        self.platform.write(":TRIG:STAT OFF")
+        self.platform.write(":SENSe:BWIDth 0.2NM")
+        self.platform.write(":SENSe:SWEep:POINts 5001")
+        time.sleep(15)
+
+    def setSweepCenter(self, wl=1550):
+        self.platform.write(":SENS:WAV:CENT "+str(wl)+"NM")
+
+    def setSweepSpan(self, span=10):
+        self.platform.write(":SENSe:WAVelength:SPAN "+str(span)+"NM")
+
+    def setSweepPoints(self, pts=5000):
+        self.platform.write(":SENSe:SWEep:POINts "+str(pts))
+
+    def sweep(self):
+        self.platform(":INITiate")
+        wait_bit = int(self.platform.query(":STATus:OPERation:EVENt?"))
+        while wait_bit != 1:
+            time.sleep(1)
+            wait_bit = int(self.platform.query(":STATus:OPERation:EVENt?"))
+
+    def getPeaks(self, peak_thresh):
+        self.platform.write(":CALCulate:CATegory SWRMS")
+        self.platform.write(":CALC:PAR:SWPK:TH "+str(np.abs(peak_thresh)))
+        self.platform.write(":CALCulate:PARameter:SWRMS:K 2.00")
+        self.platform.write(":CALCulate:IMMediate")
+        res = self.query("CALCulate:DATA?")
+        return res
+
 """
 # Declaring platforms
 ltb8 = LTB('169.254.244.64', 5025).platform
