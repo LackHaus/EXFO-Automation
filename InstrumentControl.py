@@ -156,28 +156,28 @@ class TLS:
         if self.platform_name == "LTB8":
             self.pow = p
             self.platform_obj.sendall(("LINS"+str(self.lins)+":SOUR1:POW "+str(p)+" DBM\n").encode())
-
+        time.sleep(10)
     # Method setting the source wl (m)
     def setWL(self, wl1):
         if self.platform_name == "LTB8":
             if wl1 != self.wl:
                 self.wl = wl1
                 self.platform_obj.sendall(("LINS"+str(self.lins)+":SOUR1:POW:FREQ "+str(constants.c*10**(-14)/self.wl)+"e+14 HZ\n").encode())
-    
+        time.sleep(10)
     # Method turning off laser emission
     def turnOff(self):
         if self.platform_name == "LTB8":
             if self.status == "On":
                 self.platform_obj.sendall(("LINS"+str(self.lins)+":SOUR1:POW:STAT 0\n").encode())
                 self.status = "Off"
-
+        time.sleep(10)
     # Method turning on laser emission
     def turnOn(self):
         if self.platform_name == "LTB8":
             if self.status == "Off":
                 self.platform_obj.sendall(("LINS"+str(self.lins)+":SOUR1:POW:STAT 1\n").encode())
                 self.status = "On"
-
+        time.sleep(10)
 class DFB:
     # Class initialization, acquires maximum and minimum
     # power and wl values, Turns on the source at maximum power and 1550 nm
@@ -280,7 +280,7 @@ class T100:
 class Keysight86122:
     def __init__(self, GPIB0):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB1::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         time.sleep(5)
 
@@ -309,7 +309,7 @@ class Yokogawa:
         self.platform.write(":TRIG:STAT OFF")
         self.platform.write(":SENSe:BWIDth 0.2NM")
         self.platform.write(":SENSe:SWEep:POINts 5001")
-        time.sleep(15)
+        time.sleep(10)
 
     def setSweepCenter(self, wl=1550):
         self.platform.write(":SENS:WAV:CENT "+str(wl)+"NM")
@@ -321,7 +321,7 @@ class Yokogawa:
         self.platform.write(":SENSe:SWEep:POINts "+str(pts))
 
     def sweep(self):
-        self.platform(":INITiate")
+        self.platform.write(":INITiate")
         wait_bit = int(self.platform.query(":STATus:OPERation:EVENt?"))
         while wait_bit != 1:
             time.sleep(1)
@@ -332,7 +332,7 @@ class Yokogawa:
         self.platform.write(":CALC:PAR:SWPK:TH "+str(np.abs(peak_thresh)))
         self.platform.write(":CALCulate:PARameter:SWRMS:K 2.00")
         self.platform.write(":CALCulate:IMMediate")
-        res = self.query("CALCulate:DATA?")
+        res = self.platform.query("CALCulate:DATA?")
         return res
 
 """
