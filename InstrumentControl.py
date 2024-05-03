@@ -241,11 +241,10 @@ class OSA:
 class T100:
     def __init__(self, GPIB0):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB2::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
-        print("Referencing...")
-        self.platform.write("AUTO_CAL")
-        time.sleep(30)
+        #self.platform.write("AUTO_CAL")
+        #time.sleep(15)
 
     def outputOn(self):
         self.platform.write("ENABLE")
@@ -280,7 +279,7 @@ class T100:
 class Keysight86122:
     def __init__(self, GPIB0):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB1::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         time.sleep(5)
 
@@ -294,7 +293,7 @@ class Keysight86122:
 class Yokogawa:
     def __init__(self, GPIB0):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB1::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         self.platform.write(":SENSe:CORRection:RVELocity:MEDium VAC")
         self.platform.write(":SENSe:SWEep:SPEed 1x")
