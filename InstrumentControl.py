@@ -26,17 +26,17 @@ import numpy as np
 #   OSA:                LINS14
 
 class IQS:
-    def __init__(self, GPIB0):
+    def __init__(self,  GPIB0, interface=0):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB"+str(interface)+"::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
 
 class MPC_201:
-    def __init__(self, GPIB0):
+    def __init__(self, GPIB0, interface=0):
         rm = pyvisa.ResourceManager()
         self.type = "DISC"
         self.speed = 0
-        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB"+str(interface)+"::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         self.platform.write("INP:SCR:"+self.type+":RATE "+str(self.speed))
 
@@ -239,9 +239,9 @@ class OSA:
 
 
 class T100:
-    def __init__(self, GPIB0):
+    def __init__(self, GPIB0, interface=2):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB2::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB"+str(interface)+"::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         #self.platform.write("AUTO_CAL")
         #time.sleep(15)
@@ -277,9 +277,9 @@ class T100:
         return p
 
 class Keysight86122:
-    def __init__(self, GPIB0):
+    def __init__(self, GPIB0, interface=0):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB0::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB"+str(interface)+"::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         time.sleep(5)
 
@@ -291,9 +291,9 @@ class Keysight86122:
         return wls
 
 class Yokogawa:
-    def __init__(self, GPIB0):
+    def __init__(self, GPIB0, interface=1):
         rm = pyvisa.ResourceManager()
-        self.platform = rm.open_resource("GPIB1::"+str(GPIB0)+"::INSTR")
+        self.platform = rm.open_resource("GPIB"+str(interface)+"::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         self.platform.write(":SENSe:CORRection:RVELocity:MEDium VAC")
         self.platform.write(":SENSe:SWEep:SPEed 1x")
