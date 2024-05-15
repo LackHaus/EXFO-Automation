@@ -1,8 +1,9 @@
 
-# Program to automate testing for GOSNR - Yankees
-# Thomas Lacasse 
-# 2024-02-16
-
+"""
+Library to perform automation on various instruments, EXFO and others
+Thomas Lacasse 
+Created: 2024-02-16
+"""
 # Import library for TCP/IP handling
 import socket
 # Import library for GPIB/Serial/USB handling
@@ -15,22 +16,26 @@ from pathlib import Path
 from scipy import constants
 import numpy as np
 
-# IQS platform contains :
-#   Signal VOA:         LINS0012
-#   ASE VOA:            LINS0013
-#   2.5 km Spool VOA:   LINS0014 
+""""
+IQS platform contains :
+    Signal VOA:         LINS0012
+    ASE VOA:            LINS0013
+    2.5 km Spool VOA:   LINS0014 
 
-# LTB platform contains :
-#   Scrambler VOA:      LINS11
-#   TLS:                LINS10
-#   OSA:                LINS14
+LTB platform contains :
+    Scrambler VOA:      LINS11
+    TLS:                LINS10
+    OSA:                LINS14
+"""
 
+# IQS platform class definition
 class IQS:
     def __init__(self,  GPIB0, interface=0):
         rm = pyvisa.ResourceManager()
         self.platform = rm.open_resource("GPIB"+str(interface)+"::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
 
+# MPC-201 polarization scrambler form LUNA (General Photonics) class defintion
 class MPC_201:
     def __init__(self, GPIB0, interface=0):
         rm = pyvisa.ResourceManager()
@@ -39,7 +44,6 @@ class MPC_201:
         self.platform = rm.open_resource("GPIB"+str(interface)+"::"+str(GPIB0)+"::INSTR")
         print("Connexion established with: "+ self.platform.query("*IDN?"))
         self.platform.write("INP:SCR:"+self.type+":RATE "+str(self.speed))
-
 
     def setDisc(self):
         self.type = "DISC"
@@ -53,8 +57,7 @@ class MPC_201:
         self.speed = rate
         self.platform.write("INP:SCR:"+self.type+":RATE "+str(self.speed))
 
-
-
+# LTB platform class definition
 class LTB:
     def __init__(self, add, port):
         self.platform = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -66,7 +69,6 @@ class LTB:
 # 1. Set attenuation
 # 2. Open/Close shutter
 class VOA:
-    
     # Class initialization, acquires maximum and minimum
     # attenuation values, sets the attenuation to the minimum
     # and opens the shutter
@@ -290,6 +292,7 @@ class Keysight86122:
         wls = self.platform.query(":CALCulate2:DATA? WAV")
         return wls
 
+
 class Yokogawa:
     def __init__(self, GPIB0, interface=1):
         rm = pyvisa.ResourceManager()
@@ -335,12 +338,12 @@ class Yokogawa:
         return res
 
 """
-# Declaring platforms
+# Declaring platforms example
 ltb8 = LTB('169.254.244.64', 5025).platform
 iqs600 = IQS(12).platform
 mpc_201 = MPC_201(5)
 
-# Declaring modules
+# Declaring modules example
 voa_sig = VOA("IQS600", iqs600, 2)
 voa_2km = VOA("IQS600", iqs600, 4)
 voa_ase = VOA("IQS600", iqs600, 3)
@@ -348,22 +351,5 @@ voa_scr = VOA("LTB8", ltb8, 1)
 tls = TLS("LTB8", ltb8, 0)
 osa = OSA("LTB8", ltb8, 4)
 """
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
