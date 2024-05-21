@@ -304,7 +304,7 @@ class Yokogawa:
         self.platform.write(":DISPlay:TRACe:Y1:UNIT DBM")
         self.platform.write(":SENSe:SETT:FCON ANGL")
         self.platform.write(":TRIG:PHOLd:HTIMe 0 MS")
-        self.platform.write(":INITiate:SMODe 1")
+        self.platform.write(":INITiate:SMODe AUTO")
         self.platform.write(":CALibration:ZERO off")
         self.platform.write(":CALibration:ZERO once")
         self.platform.write(":SENSe:SENSe NORM")
